@@ -49,7 +49,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const getOrderById = async (req: Request, res: Response): Promise<void> => {
-  const orderId = req.params.id;
+  const orderId = parseInt(req.params.id);
 
   try {
     const order = await prisma.order.findUnique({
@@ -72,7 +72,7 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
 };
 
 export const updateOrder = async (req: Request, res: Response): Promise<void> => {
-  const orderId = req.params.id;
+  const orderId = parseInt(req.params.id);
   const { productIds } = req.body;
 
   try {
@@ -108,7 +108,7 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
 };
 
 export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
-  const orderId = req.params.id;
+  const orderId = parseInt(req.params.id);
 
   try {
     await prisma.order.delete({

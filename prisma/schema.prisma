@@ -13,19 +13,19 @@ generator client {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   name        String
   description String
   price       Decimal
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  userId      String 
+  userId      Int 
   user        User     @relation(fields: [userId], references: [id])
   orders      Order[]
 }
 
 model Order {
-  id          String    @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   products    Product[]
   totalPrice  Decimal
   createdAt   DateTime  @default(now())
