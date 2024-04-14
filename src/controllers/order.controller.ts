@@ -8,29 +8,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   console.log('Productos en el carrito:', cartProducts);
 
   try {
-    const createdProducts = await prisma.product.createMany({
-      data: cartProducts.map((product: any) => ({
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        userId: userId,
-      })),
-    });
+    // Obtener los IDs de los productos del carrito
+    const productIds = cartProducts.map((product: any) => product.id);
 
-    const productIds = await prisma.product.findMany({
-      where: {
-        userId: userId,
-        createdAt: {
-          gte: new Date(Date.now() - 60000),
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-
+    // Calcular el precio total de la orden
     const totalPrice = cartProducts.reduce((total: number, product: any) => total + Number(product.price), 0);
 
+    // Crear la orden y asociar los productos existentes
     const newOrder = await prisma.order.create({
       data: {
         totalPrice,
@@ -38,7 +22,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           connect: { id: userId },
         },
         products: {
-          connect: productIds.map((product) => ({ id: product.id })),
+          connect: productIds.map((productId: number) => ({ id: productId })),
         },
       },
       include: {
