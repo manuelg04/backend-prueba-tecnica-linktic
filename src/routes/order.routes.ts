@@ -13,6 +13,6 @@ router.get('/',authMiddleware, getOrders);
 router.get('/:userId',authMiddleware, getOrdersByUserId);
 router.post('/',authMiddleware, createOrder);
 router.put('/:orderId',authMiddleware, updateOrder);
-router.delete('/:orderId',authMiddleware, deleteOrder);
+router.delete('/:id',authMiddleware, deleteOrder);
 
 export default router;

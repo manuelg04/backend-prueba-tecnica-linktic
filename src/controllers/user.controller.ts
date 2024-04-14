@@ -60,3 +60,18 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Error logging in', error });
   }
 };
+
+export const logoutUser = async (req: Request, res: Response): Promise<void> => {
+  const { userId } = req.body;
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { token: '' },
+    });
+
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging out', error });
+  }
+};

@@ -54,7 +54,6 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
 export const getOrdersByUserId = async (req: Request, res: Response): Promise<void> => {
   const userIdString = req.params.userId;
   const userId = parseInt(userIdString, 10);
-  console.log("🚀 ~ userId:", userId)
 
   try {
     const orders = await prisma.order.findMany({
@@ -110,7 +109,8 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
 };
 
 export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
-  const orderId = parseInt(req.params.id);
+  const orderIdString = req.params.id;
+  const orderId = parseInt(orderIdString, 10);
 
   try {
     await prisma.order.delete({
