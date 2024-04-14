@@ -21,7 +21,8 @@ model Product {
   updatedAt   DateTime @updatedAt
   userId      Int 
   user        User     @relation(fields: [userId], references: [id])
-  orders      Order[]
+  orderId     Int?
+  order       Order?   @relation(fields: [orderId], references: [id])
 }
 
 model Order {

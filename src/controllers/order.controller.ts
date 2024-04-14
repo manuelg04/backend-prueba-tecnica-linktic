@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Product } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -8,23 +8,37 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   console.log('Productos en el carrito:', cartProducts);
 
   try {
-    const productIds = cartProducts.map((product: { id: number }) => product.id);
-    const products = await prisma.product.findMany({
+    const createdProducts = await prisma.product.createMany({
+      data: cartProducts.map((product: any) => ({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        userId: userId,
+      })),
+    });
+
+    const productIds = await prisma.product.findMany({
       where: {
-        id: { in: productIds },
+        userId: userId,
+        createdAt: {
+          gte: new Date(Date.now() - 60000),
+        },
+      },
+      select: {
+        id: true,
       },
     });
 
-    const totalPrice = products.reduce((total, product) => total + Number(product.price), 0);
+    const totalPrice = cartProducts.reduce((total: number, product: any) => total + Number(product.price), 0);
 
     const newOrder = await prisma.order.create({
       data: {
-        products: {
-          connect: products.map((product) => ({ id: product.id })),
-        },
         totalPrice,
         user: {
           connect: { id: userId },
+        },
+        products: {
+          connect: productIds.map((product) => ({ id: product.id })),
         },
       },
       include: {
@@ -53,26 +67,23 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getOrderById = async (req: Request, res: Response): Promise<void> => {
-  const orderId = parseInt(req.params.id);
+export const getOrdersByUserId = async (req: Request, res: Response): Promise<void> => {
+  const userId = parseInt(req.params.userId);
 
   try {
-    const order = await prisma.order.findUnique({
+    const orders = await prisma.order.findMany({
       where: {
-        id: orderId,
+        userId: userId,
       },
       include: {
         products: true,
       },
     });
 
-    if (order) {
-      res.status(200).json(order);
-    } else {
-      res.status(404).json({ message: 'Order not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Error retrieving order', error });
+    res.status(200).json(orders);
+  } catch (error: any) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Error retrieving orders', error: error.message });
   }
 };
 
