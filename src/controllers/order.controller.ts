@@ -4,12 +4,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
-  const { cartProducts } = req.body;
+  const { cartProducts, userId } = req.body;
   console.log('Productos en el carrito:', cartProducts);
 
   try {
     const productIds = cartProducts.map((product: { id: number }) => product.id);
-    
     const products = await prisma.product.findMany({
       where: {
         id: { in: productIds },
@@ -24,14 +23,18 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           connect: products.map((product) => ({ id: product.id })),
         },
         totalPrice,
+        user: {
+          connect: { id: userId },
+        },
       },
       include: {
         products: true,
+        user: true,
       },
     });
 
     res.status(201).json(newOrder);
-  } catch (error:any) {
+  } catch (error: any) {
     console.error(error.message);
     res.status(500).json({ message: 'Error creating order', error: error.message });
   }

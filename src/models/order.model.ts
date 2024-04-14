@@ -5,4 +5,6 @@ export interface Order {
   products: Product[];
   totalPrice: number;
   createdAt: Date;
+  updatedAt: Date;
+  userId?: number;
 }
