@@ -10,9 +10,9 @@ import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
 router.get('/',authMiddleware, getOrders);
-router.get('/:id',authMiddleware, getOrdersByUserId);
+router.get('/:userId',authMiddleware, getOrdersByUserId);
 router.post('/',authMiddleware, createOrder);
-router.put('/:id',authMiddleware, updateOrder);
-router.delete('/:id',authMiddleware, deleteOrder);
+router.put('/:orderId',authMiddleware, updateOrder);
+router.delete('/:orderId',authMiddleware, deleteOrder);
 
 export default router;

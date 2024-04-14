@@ -52,12 +52,14 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const getOrdersByUserId = async (req: Request, res: Response): Promise<void> => {
-  const userId = parseInt(req.params.userId);
+  const userIdString = req.params.userId;
+  const userId = parseInt(userIdString, 10);
+  console.log("🚀 ~ userId:", userId)
 
   try {
     const orders = await prisma.order.findMany({
       where: {
-        userId: userId,
+        userId
       },
       include: {
         products: true,
