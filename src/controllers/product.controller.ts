@@ -114,3 +114,68 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       res.status(500).json({ message: 'Error deleting product', error });
     }
   };
+
+  // Eliminar un producto de una orden
+export const removeProductFromOrder = async (req: Request, res: Response): Promise<void> => {
+  const orderId = parseInt(req.params.orderId);
+  const productId = parseInt(req.params.productId);
+  const userId = req.userId; // Obtener el ID del usuario autenticado
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order || order.userId !== userId) {
+      res.status(403).json({ message: 'You do not have permission to modify this order' });
+      return;
+    }
+
+    // Eliminar la relación entre el producto y la orden
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        products: {
+          disconnect: { id: productId },
+        },
+      },
+    });
+
+    res.status(200).json({ message: 'Product removed from order' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error removing product from order', error });
+  }
+};
+
+// Agregar un producto a una orden
+export const addProductToOrder = async (req: Request, res: Response): Promise<void> => {
+  const orderId = parseInt(req.params.orderId);
+  const productId = parseInt(req.params.productId);
+  const userId = req.userId; // Obtener el ID del usuario autenticado
+
+  try {
+    // Verificar si la orden pertenece al usuario autenticado
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order || order.userId !== userId) {
+      res.status(403).json({ message: 'You do not have permission to modify this order' });
+      return;
+    }
+
+    // Agregar la relación entre el producto y la orden
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        products: {
+          connect: { id: productId },
+        },
+      },
+    });
+
+    res.status(200).json({ message: 'Product added to order' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding product to order', error });
+  }
+};
